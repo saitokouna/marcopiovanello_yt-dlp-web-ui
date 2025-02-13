@@ -1,9 +1,9 @@
 import { pipe } from 'fp-ts/lib/function'
 import { matchW } from 'fp-ts/lib/TaskEither'
+import { atom } from 'jotai'
+import { atomWithStorage } from 'jotai/utils'
 import { ffetch } from '../lib/httpClient'
 import { prefersDarkMode } from '../utils'
-import { atomWithStorage } from 'jotai/utils'
-import { atom } from 'jotai'
 
 export const languages = [
   'catalan',
@@ -121,7 +121,8 @@ export const appTitleState = atomWithStorage(
 export const serverAddressAndPortState = atom((get) => {
   if (get(servedFromReverseProxySubDirState)) {
     return `${get(serverAddressState)}/${get(servedFromReverseProxySubDirState)}/`
-      .replaceAll('"', '') // TODO: atomWithStorage put extra double quotes on strings
+      .replaceAll('"', '')    // XXX: atomWithStorage uses JSON.stringify to serialize
+      .replaceAll('//', '/')  //      which puts extra double quotes.
   }
   if (get(servedFromReverseProxyState)) {
     return `${get(serverAddressState)}`

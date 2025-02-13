@@ -22,6 +22,7 @@ import (
 	"github.com/marcopiovanello/yt-dlp-web-ui/v3/server/archive"
 	"github.com/marcopiovanello/yt-dlp-web-ui/v3/server/archiver"
 	"github.com/marcopiovanello/yt-dlp-web-ui/v3/server/config"
+	"github.com/marcopiovanello/yt-dlp-web-ui/v3/server/configurator"
 	"github.com/marcopiovanello/yt-dlp-web-ui/v3/server/dbutil"
 	"github.com/marcopiovanello/yt-dlp-web-ui/v3/server/filebrowser"
 	"github.com/marcopiovanello/yt-dlp-web-ui/v3/server/internal"
@@ -234,6 +235,9 @@ func newServer(c serverConfig) *http.Server {
 
 	// Subscriptions
 	r.Route("/subscriptions", subscription.Container(c.db, cronTaskRunner).ApplyRouter())
+
+	// Frontend config store
+	r.Route("/webconfig", configurator.ApplyRouter())
 
 	return &http.Server{Handler: r}
 }

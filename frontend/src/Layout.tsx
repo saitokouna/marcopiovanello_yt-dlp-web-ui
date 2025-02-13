@@ -16,13 +16,13 @@ import ListItemButton from '@mui/material/ListItemButton'
 import ListItemIcon from '@mui/material/ListItemIcon'
 import ListItemText from '@mui/material/ListItemText'
 import Toolbar from '@mui/material/Toolbar'
-import Typography from '@mui/material/Typography'
 import { grey } from '@mui/material/colors'
 import { useAtomValue } from 'jotai'
 import { useMemo, useState } from 'react'
 import { Link, Outlet } from 'react-router-dom'
 import { settingsState } from './atoms/settings'
 import AppBar from './components/AppBar'
+import { AppTitle } from './components/AppTitle'
 import Drawer from './components/Drawer'
 import Footer from './components/Footer'
 import Logout from './components/Logout'
@@ -76,15 +76,7 @@ export default function Layout() {
             >
               <Menu />
             </IconButton>
-            <Typography
-              component="h1"
-              variant="h6"
-              color="inherit"
-              noWrap
-              sx={{ flexGrow: 1 }}
-            >
-              {settings.appTitle}
-            </Typography>
+            <AppTitle />
           </Toolbar>
         </AppBar>
         <Drawer variant="permanent" open={open}>

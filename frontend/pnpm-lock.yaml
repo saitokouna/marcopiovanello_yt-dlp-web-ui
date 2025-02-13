@@ -32,6 +32,9 @@ importers:
       jotai:
         specifier: ^2.10.3
         version: 2.10.3(@types/react@19.0.1)(react@19.0.0)
+      jotai-cache:
+        specifier: ^0.5.0
+        version: 0.5.0(jotai@2.10.3(@types/react@19.0.1)(react@19.0.0))
       react:
         specifier: ^19.0.0
         version: 19.0.0
@@ -736,6 +739,11 @@ packages:
 
   is-core-module@2.12.1:
     resolution: {integrity: sha512-Q4ZuBAe2FUsKtyQJoQHlvP8OvBERxO3jEmy1I7hcRXcJBGGHFh/aJBswbXuS9sgrDH2QUO8ilkwNPHvHMd8clg==}
+
+  jotai-cache@0.5.0:
+    resolution: {integrity: sha512-29pUuEfSXL7Ba6lxZmiNDARc73TspWzAzCy0jCkk2uEOnFJ6kaUBZTp/AZSwnIsh1ndfUfM9/QpbLU7uJAQL0A==}
+    peerDependencies:
+      jotai: '>=2.0.0'
 
   jotai@2.10.3:
     resolution: {integrity: sha512-Nnf4IwrLhNfuz2JOQLI0V/AgwcpxvVy8Ec8PidIIDeRi4KCFpwTFIpHAAcU+yCgnw/oASYElq9UY0YdUUegsSA==}
@@ -1511,6 +1519,10 @@ snapshots:
   is-core-module@2.12.1:
     dependencies:
       has: 1.0.3
+
+  jotai-cache@0.5.0(jotai@2.10.3(@types/react@19.0.1)(react@19.0.0)):
+    dependencies:
+      jotai: 2.10.3(@types/react@19.0.1)(react@19.0.0)
 
   jotai@2.10.3(@types/react@19.0.1)(react@19.0.0):
     optionalDependencies:

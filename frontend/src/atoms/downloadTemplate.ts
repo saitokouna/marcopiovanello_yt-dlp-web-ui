@@ -1,12 +1,12 @@
 import { getOrElse } from 'fp-ts/lib/Either'
 import { pipe } from 'fp-ts/lib/function'
-import { atom } from 'jotai'
+import { atomWithCache } from 'jotai-cache'
 import { atomWithStorage } from 'jotai/utils'
 import { ffetch } from '../lib/httpClient'
 import { CustomTemplate } from '../types'
 import { serverSideCookiesState, serverURL } from './settings'
 
-export const cookiesTemplateState = atom<Promise<string>>(async (get) =>
+export const cookiesTemplateState = atomWithCache<Promise<string>>(async (get) =>
   await get(serverSideCookiesState)
     ? '--cookies=cookies.txt'
     : ''
@@ -22,7 +22,7 @@ export const filenameTemplateState = atomWithStorage(
   localStorage.getItem('lastFilenameTemplate') ?? ''
 )
 
-export const savedTemplatesState = atom<Promise<CustomTemplate[]>>(async (get) => {
+export const savedTemplatesState = atomWithCache<Promise<CustomTemplate[]>>(async (get) => {
   const task = ffetch<CustomTemplate[]>(`${get(serverURL)}/api/v1/template/all`)
   const either = await task()
 
@@ -30,5 +30,4 @@ export const savedTemplatesState = atom<Promise<CustomTemplate[]>>(async (get) =
     either,
     getOrElse(() => new Array<CustomTemplate>())
   )
-}
-)
+})

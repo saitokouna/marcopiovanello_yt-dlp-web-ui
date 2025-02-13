@@ -48,10 +48,7 @@ func (h *RestHandler) Delete() http.HandlerFunc {
 			return
 		}
 
-		if err := json.NewEncoder(w).Encode("ok"); err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
+		w.WriteHeader(http.StatusOK)
 	}
 }
 

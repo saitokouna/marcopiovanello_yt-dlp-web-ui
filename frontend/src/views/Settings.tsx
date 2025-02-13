@@ -17,7 +17,9 @@ import {
   Typography,
   capitalize
 } from '@mui/material'
-import { useAtom } from 'jotai'
+import { pipe } from 'fp-ts/lib/function'
+import { matchW } from 'fp-ts/lib/TaskEither'
+import { useAtom, useAtomValue } from 'jotai'
 import { Suspense, useCallback, useEffect, useMemo, useState } from 'react'
 import {
   Subject,
@@ -34,9 +36,9 @@ import {
   accentState,
   accents,
   appTitleState,
+  autoFileExtensionState,
   enableCustomArgsState,
   fileRenamingState,
-  autoFileExtensionState,
   formatSelectionState,
   languageState,
   languages,
@@ -45,12 +47,14 @@ import {
   servedFromReverseProxySubDirState,
   serverAddressState,
   serverPortState,
+  serverURL,
   themeState
 } from '../atoms/settings'
 import CookiesTextField from '../components/CookiesTextField'
 import UpdateBinaryButton from '../components/UpdateBinaryButton'
 import { useToast } from '../hooks/toast'
 import { useI18n } from '../hooks/useI18n'
+import { ffetch } from '../lib/httpClient'
 import Translator from '../lib/i18n'
 import { validateDomain, validateIP } from '../utils'
 
@@ -70,7 +74,7 @@ export default function Settings() {
 
   const [pollingTime, setPollingTime] = useAtom(rpcPollingTimeState)
   const [language, setLanguage] = useAtom(languageState)
-  const [appTitle, setApptitle] = useAtom(appTitleState)
+  const [appTitle, setAppTitle] = useAtom(appTitleState)
   const [accent, setAccent] = useAtom(accentState)
 
   const [theme, setTheme] = useAtom(themeState)
@@ -81,7 +85,11 @@ export default function Settings() {
 
   const { pushMessage } = useToast()
 
+  // TODO: change name
+  const derivedServerURL = useAtomValue(serverURL)
+
   const baseURL$ = useMemo(() => new Subject<string>(), [])
+  const appTitle$ = useMemo(() => new Subject<string>(), [])
   const serverAddr$ = useMemo(() => new Subject<string>(), [])
   const serverPort$ = useMemo(() => new Subject<string>(), [])
 
@@ -130,6 +138,25 @@ export default function Settings() {
       .subscribe(port => {
         setServerPort(port)
         pushMessage(i18n.t('restartAppMessage'), 'info')
+      })
+    return () => sub.unsubscribe()
+  }, [])
+
+  // TODO: refactor out of component. maybe use withAtomEffect from jotai/effect package.
+  useEffect(() => {
+    const sub = appTitle$
+      .pipe(debounceTime(500))
+      .subscribe(title => {
+        pipe(
+          ffetch(`${derivedServerURL}/webconfig/title`, {
+            method: 'PATCH',
+            body: JSON.stringify(title)
+          }),
+          matchW(
+            (l) => pushMessage(l, 'error'),
+            (_) => setAppTitle(title)
+          )
+        )()
       })
     return () => sub.unsubscribe()
   }, [])
@@ -194,7 +221,7 @@ export default function Settings() {
               fullWidth
               label={i18n.t('appTitle')}
               defaultValue={appTitle}
-              onChange={(e) => setApptitle(e.currentTarget.value)}
+              onChange={(e) => appTitle$.next(e.target.value)}
               error={appTitle === ''}
             />
           </Grid>
@@ -218,7 +245,7 @@ export default function Settings() {
                 { value: 500, label: '500 ms' },
                 { value: 750, label: '750 ms' },
                 { value: 1000, label: '1000 ms' },
-                { value: 2000, label: '2000 ms' },
+                { value: 2000, label: '2 s' },
               ]}
               onChange={(_, value) => typeof value === 'number'
                 ? setPollingTime(value)
@@ -367,7 +394,7 @@ export default function Settings() {
                   />
                 }
                 label={i18n.t('autoFileExtensionOption')}
-              /> 
+              />
             }
             <FormControlLabel
               control={

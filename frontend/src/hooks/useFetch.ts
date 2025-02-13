@@ -6,6 +6,12 @@ import { serverURL } from '../atoms/settings'
 import { ffetch } from '../lib/httpClient'
 import { useToast } from './toast'
 
+/**
+ * Wrapper hook for ffetch. Handles data retrieval and cancellation signals.
+ * If R type is set to void it doesn't perform deserialization.
+ * @param resource path of the resource. serverURL is prepended
+ * @returns JSON decoded value, eventual error and refetcher as an object to destruct.
+ */
 const useFetch = <R>(resource: string) => {
   const base = useAtomValue(serverURL)
 
@@ -26,7 +32,10 @@ const useFetch = <R>(resource: string) => {
   )()
 
   useEffect(() => {
+    const controller = new AbortController()
     fetcher()
+
+    return () => controller.abort()
   }, [])
 
   return { data, error, fetcher }

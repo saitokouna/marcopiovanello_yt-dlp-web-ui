@@ -15,7 +15,7 @@ import {
   Typography
 } from '@mui/material'
 import { TransitionProps } from '@mui/material/transitions'
-import { matchW } from 'fp-ts/lib/Either'
+import { matchW } from 'fp-ts/lib/TaskEither'
 import { pipe } from 'fp-ts/lib/function'
 import { useAtomValue } from 'jotai'
 import { forwardRef, startTransition, useState } from 'react'
@@ -52,21 +52,16 @@ const SubscriptionsDialog: React.FC<Props> = ({ open, onClose }) => {
 
   const baseURL = useAtomValue(serverURL)
 
-  const submit = async (sub: Omit<Subscription, 'id'>) => {
-    const task = ffetch<void>(`${baseURL}/subscriptions`, {
+  const submit = async (sub: Omit<Subscription, 'id'>) => pipe(
+    ffetch<void>(`${baseURL}/subscriptions`, {
       method: 'POST',
       body: JSON.stringify(sub)
-    })
-    const either = await task()
-
-    pipe(
-      either,
-      matchW(
-        (l) => pushMessage(l, 'error'),
-        (_) => onClose()
-      )
+    }),
+    matchW(
+      (l) => pushMessage(l, 'error'),
+      (_) => onClose()
     )
-  }
+  )()
 
   return (
     <Dialog
